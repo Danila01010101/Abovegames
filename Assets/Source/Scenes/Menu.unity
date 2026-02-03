@@ -349,6 +349,58 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 196730909}
   m_CullTransparentMesh: 1
+--- !u!1 &223691998
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 223691999}
+  - component: {fileID: 223692000}
+  m_Layer: 5
+  m_Name: Content
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &223691999
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 223691998}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1802991031}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: -15.482788}
+  m_SizeDelta: {x: 0, y: 17.9254}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &223692000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 223691998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69306107cbfe02e45b6842a22e6e9e27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardData: {fileID: 11400000, guid: 6b334f2d6352428479689b7cd42d6ae0, type: 2}
+  cardPrefab: {fileID: 7245711900351160238, guid: 88cbd1c0c14a4ab49ad422286b8cbab0, type: 3}
+  container: {fileID: 223691999}
+  edgePadding: 20
 --- !u!1 &349887891
 GameObject:
   m_ObjectHideFlags: 0
@@ -1893,12 +1945,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 192339ba9c5ad244b90a1e5c2d3ac712, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bannerScroll: {fileID: 1621688261}
   activeIndicator: {fileID: 1534379325}
   dotPositions:
   - {fileID: 837113471}
   - {fileID: 1295479163}
   - {fileID: 908012106}
+  moveDuration: 0.5
+  moveEase: 9
 --- !u!1 &1595155302
 GameObject:
   m_ObjectHideFlags: 0
@@ -2079,7 +2132,6 @@ MonoBehaviour:
   easeType: 9
   autoScrollInterval: 5
   swipeThreshold: 10
-  debugMode: 1
 --- !u!222 &1621688262
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2193,6 +2245,7 @@ RectTransform:
   m_Children:
   - {fileID: 1127779126}
   - {fileID: 1978754476}
+  - {fileID: 223691999}
   m_Father: {fileID: 69237619}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
