@@ -16,4 +16,30 @@ public class CardData : ScriptableObject
     
     public int TotalCards => cardSprites.Count;
     public int TotalRows => Mathf.CeilToInt((float)cardSprites.Count / cardsPerRow);
+    
+    public CardData CreateCopy()
+    {
+        var copy = CreateInstance<CardData>();
+        
+        copy.cardSprites = new List<Sprite>(cardSprites);
+        copy.cardsPerRow = cardsPerRow;
+        copy.spacing = spacing;
+        copy.cardSize = cardSize;
+        copy.currentCardSize = currentCardSize;
+        
+        return copy;
+    }
+    
+    public CardData CreateFilteredCopy(List<Sprite> filteredSprites)
+    {
+        var copy = CreateInstance<CardData>();
+        
+        copy.cardSprites = new List<Sprite>(filteredSprites);
+        copy.cardsPerRow = cardsPerRow;
+        copy.spacing = spacing;
+        copy.cardSize = cardSize;
+        copy.currentCardSize = currentCardSize;
+        
+        return copy;
+    }
 }
