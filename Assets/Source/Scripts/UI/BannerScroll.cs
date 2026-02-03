@@ -4,18 +4,7 @@ using UnityEngine.EventSystems;
 using DG.Tweening;
 using UnityEngine.UI;
 
-public interface IBannerSwitcher
-{
-    void Next();
-    void Previous();
-    void GoToBanner(int index);
-    int CurrentBannerIndex { get; }
-    int BannerCount { get; }
-    event System.Action<int, int> OnBannerSwitching;
-    event System.Action<int> OnBannerSwitchComplete;
-}
-
-public class BannerScroll : MonoBehaviour, IBannerSwitcher, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class IndicatorScroll : MonoBehaviour, IIndicatorSwitcher, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] private List<RectTransform> banners;
     [SerializeField] private float switchDuration = 0.5f;

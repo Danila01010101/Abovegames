@@ -1,18 +1,14 @@
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections.Generic;
 using DG.Tweening;
 
-public interface IBannerIndicator
+public interface IIndicator
 {
     void UpdateIndicator(int fromIndex, int toIndex);
 }
 
-public class BannerIndicator : MonoBehaviour, IBannerIndicator
+public class Indicator : MonoBehaviour, IIndicator
 {
-    [SerializeField] private IBannerSwitcher bannerSwitcher;
-    [SerializeField] private RectTransform activeIndicator;
-    [SerializeField] private List<RectTransform> dotPositions = new List<RectTransform>();
     [SerializeField] private float moveDuration = 0.5f;
     [SerializeField] private Ease moveEase = Ease.OutCubic;
     
@@ -20,17 +16,27 @@ public class BannerIndicator : MonoBehaviour, IBannerIndicator
     private int lastBannerIndex = -1;
     private Tween currentTween;
     private bool isAnimating = false;
+    private IIndicatorSwitcher indicatorSwitcher;
+    private RectTransform activeIndicator;
+    private List<RectTransform> dotPositions;
+
+    public void Initialize(IIndicatorSwitcher indicatorSwitcher, RectTransform activeIndicator, List<RectTransform> dotPositions)
+    {
+        this.indicatorSwitcher = indicatorSwitcher; 
+        this.activeIndicator = activeIndicator;
+        this.dotPositions = dotPositions;
+    }
 
     private void Start()
     {
         ValidateComponents();
         CacheDotPositions();
         
-        if (bannerSwitcher != null)
+        if (indicatorSwitcher != null)
         {
-            bannerSwitcher.OnBannerSwitching += OnBannerSwitching;
-            bannerSwitcher.OnBannerSwitchComplete += OnBannerSwitchComplete;
-            MoveIndicatorImmediately(bannerSwitcher.CurrentBannerIndex);
+            indicatorSwitcher.OnBannerSwitching += OnIndicatorSwitching;
+            indicatorSwitcher.OnBannerSwitchComplete += OnIndicatorSwitchComplete;
+            MoveIndicatorImmediately(indicatorSwitcher.CurrentBannerIndex);
         }
     }
 
@@ -66,7 +72,7 @@ public class BannerIndicator : MonoBehaviour, IBannerIndicator
         }
     }
 
-    private void OnBannerSwitching(int fromIndex, int toIndex)
+    private void OnIndicatorSwitching(int fromIndex, int toIndex)
     {
         if (fromIndex == toIndex || activeIndicator == null || dotPositions.Count == 0) return;
         
@@ -92,7 +98,7 @@ public class BannerIndicator : MonoBehaviour, IBannerIndicator
         }
     }
 
-    private void OnBannerSwitchComplete(int bannerIndex)
+    private void OnIndicatorSwitchComplete(int bannerIndex)
     {
         if (activeIndicator == null || dotPositions.Count == 0) return;
         
@@ -111,7 +117,10 @@ public class BannerIndicator : MonoBehaviour, IBannerIndicator
 
     public void UpdateIndicator(int fromIndex, int toIndex)
     {
-        OnBannerSwitching(fromIndex, toIndex);
+        if (isAnimating == false)
+        {
+            OnIndicatorSwitching(fromIndex, toIndex);
+        }
     }
 
     private void MoveIndicatorImmediately(int bannerIndex)
@@ -133,25 +142,12 @@ public class BannerIndicator : MonoBehaviour, IBannerIndicator
 
     private void OnDestroy()
     {
-        if (bannerSwitcher != null)
+        if (indicatorSwitcher != null)
         {
-            bannerSwitcher.OnBannerSwitching -= OnBannerSwitching;
-            bannerSwitcher.OnBannerSwitchComplete -= OnBannerSwitchComplete;
+            indicatorSwitcher.OnBannerSwitching -= OnIndicatorSwitching;
+            indicatorSwitcher.OnBannerSwitchComplete -= OnIndicatorSwitchComplete;
         }
         
         currentTween?.Kill();
-    }
-
-    private void OnValidate()
-    {
-        if (bannerSwitcher == null)
-        {
-            bannerSwitcher = GetComponentInParent<IBannerSwitcher>();
-        }
-        
-        if (dotPositions.Count == 0)
-        {
-            CollectDotPositions();
-        }
     }
 }

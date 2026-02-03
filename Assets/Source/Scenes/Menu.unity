@@ -1904,6 +1904,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1549036045}
   - component: {fileID: 1549036046}
+  - component: {fileID: 1549036047}
   m_Layer: 5
   m_Name: BannersIndicator
   m_TagString: Untagged
@@ -1945,13 +1946,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 192339ba9c5ad244b90a1e5c2d3ac712, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveDuration: 0.5
+  moveEase: 9
+--- !u!114 &1549036047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1549036044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a5c6731c93c1dd4ca2c25a5144649d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  indicatorScroll: {fileID: 1621688261}
+  indicator: {fileID: 1549036046}
   activeIndicator: {fileID: 1534379325}
   dotPositions:
   - {fileID: 837113471}
   - {fileID: 1295479163}
   - {fileID: 908012106}
-  moveDuration: 0.5
-  moveEase: 9
 --- !u!1 &1595155302
 GameObject:
   m_ObjectHideFlags: 0
