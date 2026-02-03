@@ -400,6 +400,9 @@ MonoBehaviour:
   cardData: {fileID: 11400000, guid: 6b334f2d6352428479689b7cd42d6ae0, type: 2}
   cardPrefab: {fileID: 7245711900351160238, guid: 88cbd1c0c14a4ab49ad422286b8cbab0, type: 3}
   container: {fileID: 223691999}
+  allButton: {fileID: 1054540232}
+  oddButton: {fileID: 1595155304}
+  evenButton: {fileID: 553955084}
   edgePadding: 20
 --- !u!1 &349887891
 GameObject:

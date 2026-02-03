@@ -1,38 +1,79 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ContentGenerator : MonoBehaviour
 {
     [SerializeField] private CardData cardData;
     [SerializeField] private ContentCell cardPrefab;
     [SerializeField] private RectTransform container;
+    [SerializeField] private Button allButton;
+    [SerializeField] private Button oddButton;
+    [SerializeField] private Button evenButton;
     [SerializeField] private float edgePadding = 20f;
 
     private List<ContentCell> spawnedCards = new List<ContentCell>();
     private RectTransform containerRect;
+    
+    private AllFilter<Sprite> allFilter = new AllFilter<Sprite>();
+    private OddFilter<Sprite> oddFilter = new OddFilter<Sprite>();
+    private EvenFilter<Sprite> evenFilter = new EvenFilter<Sprite>();
+    private CardData filteredData;
 
     private void Awake()
     {
-        containerRect = container;if (cardData != null && container != null)
+        containerRect = container;
+        
+        if (cardData != null && container != null)
         {
             GenerateContent();
         }
+        
+        allButton.onClick.AddListener(delegate { GenerateContent(); });
+        oddButton.onClick.AddListener(delegate { GenerateContent(FilterType.Odd); });
+        evenButton.onClick.AddListener(delegate { GenerateContent(FilterType.Even); });
     }
 
-    public void GenerateContent()
+    public void GenerateContent(FilterType mode = FilterType.All)
     {
         ClearContent();
+        FilterData(cardData, mode);
         
         if (!ValidateComponents()) return;
-        if (cardData.cardSprites.Count == 0) return;
+        if (filteredData.cardSprites.Count == 0) return;
 
         SetupGridLayout();
         CreateCards();
     }
 
+    private void FilterData(CardData cardData, FilterType mode = FilterType.All)
+    {
+        filteredData = new CardData();
+        filteredData.currentCardSize = cardData.currentCardSize;
+        filteredData.cardsPerRow = cardData.cardsPerRow;
+        filteredData.spacing = cardData.spacing;
+        filteredData.cardSize = cardData.cardSize;
+            
+        switch (mode)
+        {
+            case FilterType.All:
+                filteredData.cardSprites = allFilter.Filter(cardData.cardSprites);
+                break;
+            case FilterType.Even:
+                filteredData.cardSprites = evenFilter.Filter(cardData.cardSprites);
+                break;
+            case FilterType.Odd:
+                filteredData.cardSprites = oddFilter.Filter(cardData.cardSprites);
+                break;
+            default:
+                throw new NullReferenceException("No such filter exists");
+        }
+    }
+
     private bool ValidateComponents()
     {
-        if (cardData == null)
+        if (filteredData == null)
         {
             Debug.LogWarning("CardData не назначен");
             return false;
@@ -55,23 +96,23 @@ public class ContentGenerator : MonoBehaviour
 
     private void SetupGridLayout()
     {
-        int cardsPerRow = Mathf.Max(1, cardData.cardsPerRow);
+        int cardsPerRow = Mathf.Max(1, filteredData.cardsPerRow);
             Vector2 availableSize = containerRect.rect.size - new Vector2(edgePadding * 2, edgePadding * 2);
         
-        float availableWidth = availableSize.x - (cardData.spacing * (cardsPerRow - 1));
-        float cardWidth = Mathf.Min(availableWidth / cardsPerRow, cardData.cardSize.x);
-        float cardHeight = cardWidth * (cardData.cardSize.y / cardData.cardSize.x);
+        float availableWidth = availableSize.x - (filteredData.spacing * (cardsPerRow - 1));
+        float cardWidth = Mathf.Min(availableWidth / cardsPerRow, filteredData.cardSize.x);
+        float cardHeight = cardWidth * (filteredData.cardSize.y / filteredData.cardSize.x);
         
-        cardData.currentCardSize = new Vector2(cardWidth, cardHeight);
+        filteredData.currentCardSize = new Vector2(cardWidth, cardHeight);
     }
 
     private void CreateCards()
     {
-        int cardsPerRow = Mathf.Max(1, cardData.cardsPerRow);
-        int rowCount = Mathf.CeilToInt((float)cardData.cardSprites.Count / cardsPerRow);
+        int cardsPerRow = Mathf.Max(1, filteredData.cardsPerRow);
+        int rowCount = Mathf.CeilToInt((float)filteredData.cardSprites.Count / cardsPerRow);
         Vector2 availableSize = containerRect.rect.size - new Vector2(edgePadding * 2, edgePadding * 2);
 
-        for (int i = 0; i < cardData.cardSprites.Count; i++)
+        for (int i = 0; i < filteredData.cardSprites.Count; i++)
         {
             ContentCell card = InstantiateCard(i);
             if (card == null) continue;
@@ -86,8 +127,8 @@ public class ContentGenerator : MonoBehaviour
         ContentCell cardInstance = Instantiate(cardPrefab, container);
         if (cardInstance == null) return null;
 
-        cardInstance.Initialize(cardData.cardSprites[index]);
-        cardInstance.SetSize(cardData.currentCardSize);
+        cardInstance.Initialize(filteredData.cardSprites[index]);
+        cardInstance.SetSize(filteredData.currentCardSize);
         
         return cardInstance;
     }
@@ -97,11 +138,11 @@ public class ContentGenerator : MonoBehaviour
         int row = index / cardsPerRow;
         int col = index % cardsPerRow;
         
-        float startX = -availableSize.x / 2 + edgePadding + cardData.currentCardSize.x / 2;
-        float startY = availableSize.y / 2 - edgePadding - cardData.currentCardSize.y / 2;
+        float startX = -availableSize.x / 2 + edgePadding + filteredData.currentCardSize.x / 2;
+        float startY = availableSize.y / 2 - edgePadding - filteredData.currentCardSize.y / 2;
         
-        float posX = startX + col * (cardData.currentCardSize.x + cardData.spacing);
-        float posY = startY - row * (cardData.currentCardSize.y + cardData.spacing);
+        float posX = startX + col * (filteredData.currentCardSize.x + filteredData.spacing);
+        float posY = startY - row * (filteredData.currentCardSize.y + filteredData.spacing);
         
         card.SetPosition(new Vector2(posX, posY));
     }
