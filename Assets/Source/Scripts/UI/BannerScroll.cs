@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using DG.Tweening;
 using UnityEngine.UI;
 
-public class IndicatorScroll : MonoBehaviour, IIndicatorSwitcher, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class BannerScroll : MonoBehaviour, IIndicatorSwitcher, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] private List<RectTransform> banners;
     [SerializeField] private float switchDuration = 0.5f;
