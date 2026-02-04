@@ -12,12 +12,70 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c02818c29afc19e4bbdcfc569c194b5d, type: 3}
   m_Name: CardData
   m_EditorClassIdentifier: 
-  cardSprites:
-  - {fileID: 21300000, guid: b5ab89a000f4b5f4099799ac2e974c78, type: 3}
-  - {fileID: 21300000, guid: ccf4eae74bad5cc469dee61f9083a7d7, type: 3}
-  - {fileID: 21300000, guid: 880f9b2203a33434d867a385ab7e488c, type: 3}
-  - {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 21300000, guid: 677d50a89dd27bf4c9502aaa530139c8, type: 3}
-  cardsPerRow: 3
-  spacing: 20
-  cardSize: {x: 200, y: 300}
+  cardNames:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  - 16
+  - 17
+  - 18
+  - 19
+  - 20
+  - 21
+  - 22
+  - 23
+  - 24
+  - 25
+  - 26
+  - 27
+  - 28
+  - 29
+  - 30
+  - 31
+  - 32
+  - 33
+  - 34
+  - 35
+  - 36
+  - 37
+  - 38
+  - 39
+  - 40
+  - 41
+  - 42
+  - 43
+  - 44
+  - 45
+  - 46
+  - 47
+  - 48
+  - 49
+  - 50
+  - 51
+  - 52
+  - 53
+  - 54
+  - 55
+  - 56
+  - 57
+  - 58
+  - 59
+  - 60
+  - 61
+  - 62
+  - 63
+  - 64
+  - 65
+  - 66

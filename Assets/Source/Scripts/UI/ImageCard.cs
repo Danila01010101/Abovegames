@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -8,23 +9,19 @@ public class ImageCard : MonoBehaviour
     [SerializeField] private GameObject loadingIndicator;
     [SerializeField] private Button cardButton;
     
-    private int imageNumber;
+    private string cardName;
     private bool hasImage = false;
+    private Action<ImageCard> onImageRequested;
     
-    public int ImageNumber => imageNumber;
+    public string CardName => cardName;
     public bool HasImage => hasImage;
     
-    private System.Action<ImageCard> onClickCallback;
-    
-    public void Initialize(int number)
+    public void Initialize(string name)
     {
-        imageNumber = number;
+        cardName = name;
         hasImage = false;
         
-        if (loadingIndicator != null)
-        {
-            loadingIndicator.SetActive(true);
-        }
+        ShowLoadingState(true);
         
         if (imageDisplay != null)
         {
@@ -34,7 +31,21 @@ public class ImageCard : MonoBehaviour
         
         if (cardButton != null)
         {
-            cardButton.onClick.AddListener(OnCardClicked);
+            cardButton.onClick.RemoveAllListeners();
+            cardButton.onClick.AddListener(RequestImage);
+        }
+    }
+    
+    public void SetOnImageRequestedCallback(Action<ImageCard> callback)
+    {
+        onImageRequested = callback;
+    }
+    
+    private void RequestImage()
+    {
+        if (!hasImage && onImageRequested != null)
+        {
+            onImageRequested?.Invoke(this);
         }
     }
     
@@ -43,15 +54,11 @@ public class ImageCard : MonoBehaviour
         if (imageDisplay != null)
         {
             imageDisplay.sprite = sprite;
-            imageDisplay.enabled = true;
+            imageDisplay.enabled = sprite != null;
         }
         
-        if (loadingIndicator != null)
-        {
-            loadingIndicator.SetActive(false);
-        }
-        
-        hasImage = true;
+        hasImage = sprite != null;
+        ShowLoadingState(!hasImage);
     }
     
     public void ClearImage()
@@ -62,12 +69,16 @@ public class ImageCard : MonoBehaviour
             imageDisplay.enabled = false;
         }
         
+        hasImage = false;
+        ShowLoadingState(true);
+    }
+    
+    private void ShowLoadingState(bool isLoading)
+    {
         if (loadingIndicator != null)
         {
-            loadingIndicator.SetActive(true);
+            loadingIndicator.SetActive(isLoading);
         }
-        
-        hasImage = false;
     }
     
     public void SetSize(Vector2 size)
@@ -87,17 +98,23 @@ public class ImageCard : MonoBehaviour
             rectTransform.anchoredPosition = position;
         }
     }
-
-    public void OnPointerClick(PointerEventData eventData)
+    
+    private void OnBecameVisible()
     {
-        if (cardButton == null)
+        if (!hasImage)
         {
-            OnCardClicked();
+            RequestImage();
         }
     }
-
-    private void OnCardClicked()
+    
+    private void OnBecameInvisible()
     {
-        onClickCallback?.Invoke(this);
+        // Опционально: можно очищать изображение при скрытии
+        // ClearImage();
+    }
+    
+    private void OnDisable()
+    {
+        ClearImage();
     }
 }
