@@ -143,7 +143,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5313036507579503145}
-  - component: {fileID: 7245711900351160238}
+  - component: {fileID: 2924527813692150000}
   m_Layer: 5
   m_Name: ContentCell
   m_TagString: Untagged
@@ -173,7 +173,7 @@ RectTransform:
   m_AnchoredPosition: {x: 179.07683, y: 182.2185}
   m_SizeDelta: {x: 458.1536, y: 464.4369}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &7245711900351160238
+--- !u!114 &2924527813692150000
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -182,11 +182,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 3098611054016379375}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 75e3e3384bef49240818fc94bf9fbae1, type: 3}
+  m_Script: {fileID: 11500000, guid: 151b03393cd36d646bf458fd32e3e74b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardImage: {fileID: 6351442192103831537}
-  cardButton: {fileID: 7095086085133627719}
+  imageDisplay: {fileID: 0}
+  loadingIndicator: {fileID: 0}
 --- !u!1 &5435542224077367542
 GameObject:
   m_ObjectHideFlags: 0

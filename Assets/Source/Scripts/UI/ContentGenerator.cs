@@ -5,11 +5,11 @@ using UnityEngine;
 public class ContentGenerator : MonoBehaviour
 {
     [SerializeField] private CardData cardData;
-    [SerializeField] private ContentCell cardPrefab;
+    [SerializeField] private ImageCard cardPrefab;
     [SerializeField] private RectTransform container;
     [SerializeField] private float edgePadding = 20f;
 
-    private List<ContentCell> spawnedCards = new List<ContentCell>();
+    private List<ImageCard> spawnedCards = new List<ImageCard>();
     private RectTransform containerRect;
     private CardData filteredData;
 
@@ -84,7 +84,7 @@ public class ContentGenerator : MonoBehaviour
 
         for (int i = 0; i < filteredData.cardSprites.Count; i++)
         {
-            ContentCell card = CreateCard(i);
+            ImageCard card = CreateCard(i);
             if (card == null) continue;
 
             PositionCard(card, i, cardsPerRow, availableSize);
@@ -92,18 +92,18 @@ public class ContentGenerator : MonoBehaviour
         }
     }
 
-    private ContentCell CreateCard(int index)
+    private ImageCard CreateCard(int index)
     {
-        ContentCell card = Instantiate(cardPrefab, container);
+        ImageCard card = Instantiate(cardPrefab, container);
         if (card == null) return null;
 
-        card.Initialize(filteredData.cardSprites[index]);
+        card.Initialize(index);
         card.SetSize(filteredData.currentCardSize);
         
         return card;
     }
 
-    private void PositionCard(ContentCell card, int index, int cardsPerRow, Vector2 availableSize)
+    private void PositionCard(ImageCard card, int index, int cardsPerRow, Vector2 availableSize)
     {
         int row = index / cardsPerRow;
         int column = index % cardsPerRow;
@@ -132,7 +132,7 @@ public class ContentGenerator : MonoBehaviour
 
     private void ClearContent()
     {
-        foreach (ContentCell card in spawnedCards)
+        foreach (ImageCard card in spawnedCards)
         {
             if (card != null)
             {
