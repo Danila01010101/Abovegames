@@ -271,6 +271,11 @@ MonoBehaviour:
   prefabsToInitialize: []
   initializeOnAwake: 1
   delayBetweenInitializations: 0.1
+--- !u!224 &818001537 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3470829337670924560, guid: b25173b114d05624498d6151aab7d348, type: 3}
+  m_PrefabInstance: {fileID: 8753036209184177124}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &973795185
 GameObject:
   m_ObjectHideFlags: 0
@@ -365,6 +370,16 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!224 &1024042464 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 1650099948705853218, guid: b25173b114d05624498d6151aab7d348, type: 3}
+  m_PrefabInstance: {fileID: 8753036209184177124}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &1079678304 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 7096974725994702981, guid: b25173b114d05624498d6151aab7d348, type: 3}
+  m_PrefabInstance: {fileID: 8753036209184177124}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1171077617
 GameObject:
   m_ObjectHideFlags: 0
@@ -542,6 +557,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: TabBar
       objectReference: {fileID: 0}
+    - target: {fileID: 6729684405342596215, guid: b25173b114d05624498d6151aab7d348, type: 3}
+      propertyPath: dotPositions.Array.data[0]
+      value: 
+      objectReference: {fileID: 1079678304}
+    - target: {fileID: 6729684405342596215, guid: b25173b114d05624498d6151aab7d348, type: 3}
+      propertyPath: dotPositions.Array.data[1]
+      value: 
+      objectReference: {fileID: 818001537}
+    - target: {fileID: 6729684405342596215, guid: b25173b114d05624498d6151aab7d348, type: 3}
+      propertyPath: dotPositions.Array.data[2]
+      value: 
+      objectReference: {fileID: 1024042464}
     - target: {fileID: 6912129741345739682, guid: b25173b114d05624498d6151aab7d348, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

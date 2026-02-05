@@ -2,29 +2,28 @@ using UnityEngine;
 using System.Collections.Generic;
 using DG.Tweening;
 
-public interface IIndicator
-{
-    void UpdateIndicator(int fromIndex, int toIndex);
-}
-
-public class Indicator : MonoBehaviour, IIndicator
+public class Indicator : MonoBehaviour
 {
     [SerializeField] private float moveDuration = 0.5f;
     [SerializeField] private Ease moveEase = Ease.OutCubic;
+    [SerializeField] private bool useAnchoredPosition = true; // Новая опция
     
-    private Vector3[] dotWorldPositions;
+    private Vector2[] dotAnchoredPositions;
+    private Vector2[] dotLocalPositions;
     private int lastBannerIndex = -1;
     private Tween currentTween;
     private bool isAnimating = false;
     private IIndicatorSwitcher indicatorSwitcher;
     private RectTransform activeIndicator;
     private List<RectTransform> dotPositions;
+    private RectTransform indicatorRectTransform;
 
     public void Initialize(IIndicatorSwitcher indicatorSwitcher, RectTransform activeIndicator, List<RectTransform> dotPositions)
     {
         this.indicatorSwitcher = indicatorSwitcher; 
         this.activeIndicator = activeIndicator;
         this.dotPositions = dotPositions;
+        this.indicatorRectTransform = activeIndicator;
     }
 
     private void Start()
@@ -56,18 +55,26 @@ public class Indicator : MonoBehaviour, IIndicator
         foreach (Transform child in transform)
         {
             var rectTransform = child.GetComponent<RectTransform>();
-            if (rectTransform != null) dotPositions.Add(rectTransform);
+            if (rectTransform != null) 
+            {
+                dotPositions.Add(rectTransform);
+            }
         }
     }
 
     private void CacheDotPositions()
     {
-        dotWorldPositions = new Vector3[dotPositions.Count];
+        if (dotPositions == null || dotPositions.Count == 0) return;
+        
+        dotAnchoredPositions = new Vector2[dotPositions.Count];
+        dotLocalPositions = new Vector2[dotPositions.Count];
+        
         for (int i = 0; i < dotPositions.Count; i++)
         {
             if (dotPositions[i] != null)
             {
-                dotWorldPositions[i] = dotPositions[i].position;
+                dotAnchoredPositions[i] = dotPositions[i].anchoredPosition;
+                dotLocalPositions[i] = dotPositions[i].localPosition;
             }
         }
     }
@@ -84,11 +91,24 @@ public class Indicator : MonoBehaviour, IIndicator
             currentTween?.Kill();
             isAnimating = true;
             
-            Vector3 startPos = dotWorldPositions[fromDotIndex];
-            Vector3 endPos = dotWorldPositions[toDotIndex];
-            
-            currentTween = activeIndicator.DOMove(endPos, moveDuration)
-                .SetEase(moveEase);
+            if (useAnchoredPosition)
+            {
+                // Используем anchoredPosition для квадратного экрана
+                Vector2 startPos = dotAnchoredPositions[fromDotIndex];
+                Vector2 endPos = dotAnchoredPositions[toDotIndex];
+                
+                currentTween = indicatorRectTransform.DOAnchorPos(endPos, moveDuration)
+                    .SetEase(moveEase);
+            }
+            else
+            {
+                // Используем localPosition
+                Vector2 startPos = dotLocalPositions[fromDotIndex];
+                Vector2 endPos = dotLocalPositions[toDotIndex];
+                
+                currentTween = indicatorRectTransform.DOLocalMove(endPos, moveDuration)
+                    .SetEase(moveEase);
+            }
             
             if (dotPositions[toDotIndex] != null)
             {
@@ -109,7 +129,15 @@ public class Indicator : MonoBehaviour, IIndicator
         
         if (dotPositions[dotIndex] != null)
         {
-            activeIndicator.position = dotWorldPositions[dotIndex];
+            if (useAnchoredPosition)
+            {
+                indicatorRectTransform.anchoredPosition = dotAnchoredPositions[dotIndex];
+            }
+            else
+            {
+                activeIndicator.localPosition = dotLocalPositions[dotIndex];
+            }
+            
             activeIndicator.rotation = dotPositions[dotIndex].rotation;
             activeIndicator.localScale = dotPositions[dotIndex].localScale;
         }
@@ -117,7 +145,7 @@ public class Indicator : MonoBehaviour, IIndicator
 
     public void UpdateIndicator(int fromIndex, int toIndex)
     {
-        if (isAnimating == false)
+        if (!isAnimating)
         {
             OnIndicatorSwitching(fromIndex, toIndex);
         }
@@ -132,12 +160,45 @@ public class Indicator : MonoBehaviour, IIndicator
         
         if (dotPositions[dotIndex] != null)
         {
-            activeIndicator.position = dotWorldPositions[dotIndex];
+            if (useAnchoredPosition)
+            {
+                indicatorRectTransform.anchoredPosition = dotAnchoredPositions[dotIndex];
+            }
+            else
+            {
+                activeIndicator.localPosition = dotLocalPositions[dotIndex];
+            }
+            
             activeIndicator.rotation = dotPositions[dotIndex].rotation;
             activeIndicator.localScale = dotPositions[dotIndex].localScale;
         }
         
         lastBannerIndex = bannerIndex;
+    }
+
+    // Добавим метод для обновления позиций при изменении размера экрана
+    private void Update()
+    {
+        // Проверяем изменение размера экрана
+        if (Screen.width != lastScreenWidth || Screen.height != lastScreenHeight)
+        {
+            RefreshPositions();
+            lastScreenWidth = Screen.width;
+            lastScreenHeight = Screen.height;
+        }
+    }
+    
+    private int lastScreenWidth;
+    private int lastScreenHeight;
+    
+    public void RefreshPositions()
+    {
+        CacheDotPositions();
+        
+        if (lastBannerIndex >= 0 && lastBannerIndex < dotPositions.Count)
+        {
+            MoveIndicatorImmediately(lastBannerIndex);
+        }
     }
 
     private void OnDestroy()
