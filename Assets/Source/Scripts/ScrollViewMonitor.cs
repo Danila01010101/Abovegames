@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,7 +8,9 @@ public class ScrollViewMonitor : MonoBehaviour
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private RectTransform content;
     
-    private List<System.Action<float>> scrollListeners = new List<System.Action<float>>();
+    private List<Action<float>> scrollListeners = new List<Action<float>>();
+    
+    public ScrollRect ScrollRect => scrollRect;
     
     private void Start()
     {
@@ -15,15 +18,23 @@ public class ScrollViewMonitor : MonoBehaviour
         {
             scrollRect.onValueChanged.AddListener(OnScrollValueChanged);
         }
+        else
+        {
+            Debug.LogError("ScrollRect is not assigned!");
+        }
     }
     
     private void OnScrollValueChanged(Vector2 scrollPosition)
     {
-        float normalizedPosition = 1f - scrollPosition.y;
+        // В вертикальном ScrollRect Y=1 - вверху, Y=0 - внизу
+        float normalizedPosition = scrollRect.vertical 
+            ? 1f - scrollPosition.y 
+            : scrollPosition.x;
+            
         NotifyScrollListeners(normalizedPosition);
     }
     
-    public void AddScrollListener(System.Action<float> listener)
+    public void AddScrollListener(Action<float> listener)
     {
         if (!scrollListeners.Contains(listener))
         {
@@ -31,7 +42,7 @@ public class ScrollViewMonitor : MonoBehaviour
         }
     }
     
-    public void RemoveScrollListener(System.Action<float> listener)
+    public void RemoveScrollListener(Action<float> listener)
     {
         scrollListeners.Remove(listener);
     }
@@ -44,44 +55,50 @@ public class ScrollViewMonitor : MonoBehaviour
         }
     }
     
+    public float GetScrollPosition()
+    {
+        if (scrollRect == null) return 0f;
+        return scrollRect.vertical ? 1f - scrollRect.verticalNormalizedPosition : scrollRect.horizontalNormalizedPosition;
+    }
+    
     public float GetVisibleStartPosition()
     {
-        if (scrollRect == null || content == null) return 0f;
+        if (scrollRect == null || content == null || scrollRect.viewport == null) 
+            return 0f;
         
-        float scrollValue = 1f - scrollRect.verticalNormalizedPosition;
+        float scrollValue = GetScrollPosition();
         float contentHeight = content.rect.height;
         float viewportHeight = scrollRect.viewport.rect.height;
         
-        return Mathf.Max(0f, scrollValue * (contentHeight - viewportHeight));
+        // Если контент меньше viewport, всегда показываем с начала
+        if (contentHeight <= viewportHeight) 
+            return 0f;
+        
+        return Mathf.Clamp(scrollValue * (contentHeight - viewportHeight), 0f, contentHeight - viewportHeight);
     }
     
     public float GetVisibleEndPosition()
     {
-        if (scrollRect == null || content == null) return 0f;
+        if (scrollRect == null || content == null || scrollRect.viewport == null) 
+            return 0f;
         
         float startPosition = GetVisibleStartPosition();
         float viewportHeight = scrollRect.viewport.rect.height;
+        float contentHeight = content.rect.height;
         
-        return startPosition + viewportHeight;
+        return Mathf.Min(startPosition + viewportHeight, contentHeight);
     }
     
-    public void ScrollToPosition(float normalizedPosition)
+    public float GetViewportHeight()
     {
-        if (scrollRect != null)
-        {
-            scrollRect.verticalNormalizedPosition = Mathf.Clamp01(1f - normalizedPosition);
-        }
+        if (scrollRect == null || scrollRect.viewport == null) 
+            return 0f;
+        return scrollRect.viewport.rect.height;
     }
     
     public float GetContentHeight()
     {
         return content != null ? content.rect.height : 0f;
-    }
-    
-    public float GetViewportHeight()
-    {
-        return scrollRect != null && scrollRect.viewport != null ? 
-               scrollRect.viewport.rect.height : 0f;
     }
     
     private void OnDestroy()
@@ -91,5 +108,16 @@ public class ScrollViewMonitor : MonoBehaviour
             scrollRect.onValueChanged.RemoveListener(OnScrollValueChanged);
         }
         scrollListeners.Clear();
+    }
+    
+    // Для отладки
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            Debug.Log($"Scroll: {GetScrollPosition():F2}, Start: {GetVisibleStartPosition():F1}, " +
+                     $"End: {GetVisibleEndPosition():F1}, Viewport: {GetViewportHeight():F1}, " +
+                     $"Content: {GetContentHeight():F1}");
+        }
     }
 }

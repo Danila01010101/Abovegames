@@ -1,118 +1,82 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
 public class OnlineImageLoader : MonoBehaviour
 {
-    private const string BaseUrl = "http://data.ikppbb.com/test-task-unity-data/pics/";
+    [SerializeField] private string baseUrl = "http://data.ikppbb.com/test-task-unity-data/pics/";
     
-    private Dictionary<string, Texture2D> textureCache = new Dictionary<string, Texture2D>();
     private Dictionary<string, Sprite> spriteCache = new Dictionary<string, Sprite>();
     
-    public async Task<Sprite> LoadImageAsync(string imageName)
+    public void LoadImage(string imageName, Action<Sprite> callback)
     {
-        if (string.IsNullOrEmpty(imageName))
-        {
-            Debug.LogError("Image name is null or empty");
-            return CreatePlaceholderSprite();
-        }
-        
         if (spriteCache.TryGetValue(imageName, out Sprite cachedSprite))
         {
-            return cachedSprite;
+            callback?.Invoke(cachedSprite);
+            return;
         }
         
-        // Просто формируем URL на основе имени карточки
-        // Предполагаем, что imageName содержит номер изображения (например: "1", "2", "33")
-        string url = $"{BaseUrl}{imageName}.jpg";
-        
-        Debug.Log($"Loading image from: {url}");
+        StartCoroutine(LoadImageCoroutine(imageName, callback));
+    }
+    
+    private IEnumerator LoadImageCoroutine(string imageName, Action<Sprite> callback)
+    {
+        string url = $"{baseUrl}{imageName}.jpg";
+        //string url = "https://avatars.mds.yandex.net/i?id=ed288656783ca1d1e8e43a13582f1ebe4c14e535-4228239-images-thumbs&n=13";
         
         using UnityWebRequest request = UnityWebRequestTexture.GetTexture(url);
-        UnityWebRequestAsyncOperation operation = request.SendWebRequest();
         
-        while (!operation.isDone)
-        {
-            await Task.Yield();
-        }
+        yield return request.SendWebRequest();
         
         if (request.result == UnityWebRequest.Result.Success)
         {
             Texture2D texture = DownloadHandlerTexture.GetContent(request);
-            Sprite sprite = CreateSpriteFromTexture(texture);
+            Sprite sprite = Sprite.Create(
+                texture,
+                new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f)
+            );
             
-            CacheImage(imageName, texture, sprite);
-            return sprite;
+            spriteCache[imageName] = sprite;
+            
+            callback?.Invoke(sprite);
         }
         else
         {
-            Debug.LogError($"Failed to load image {imageName}: {request.error}");
-            return CreatePlaceholderSprite();
-        }
-    }
-    
-    private Sprite CreateSpriteFromTexture(Texture2D texture)
-    {
-        return Sprite.Create(
-            texture,
-            new Rect(0, 0, texture.width, texture.height),
-            new Vector2(0.5f, 0.5f)
-        );
-    }
-    
-    private void CacheImage(string imageName, Texture2D texture, Sprite sprite)
-    {
-        if (!string.IsNullOrEmpty(imageName))
-        {
-            textureCache[imageName] = texture;
-            spriteCache[imageName] = sprite;
+            Debug.LogError($"Failed to load image: {imageName}, Error: {request.error}");
+            callback?.Invoke(CreatePlaceholderSprite());
         }
     }
     
     private Sprite CreatePlaceholderSprite()
     {
-        Texture2D placeholder = new Texture2D(1, 1);
-        placeholder.SetPixel(0, 0, new Color(0.8f, 0.8f, 0.8f));
-        placeholder.Apply();
+        Texture2D texture = new Texture2D(1, 1);
+        texture.SetPixel(0, 0, Color.gray);
+        texture.Apply();
         
         return Sprite.Create(
-            placeholder,
+            texture,
             new Rect(0, 0, 1, 1),
             new Vector2(0.5f, 0.5f)
         );
     }
     
-    public Sprite GetCachedSprite(string imageName)
+    public void ClearCache()
     {
-        spriteCache.TryGetValue(imageName, out Sprite sprite);
-        return sprite;
-    }
-    
-    public bool IsImageLoaded(string imageName)
-    {
-        return spriteCache.ContainsKey(imageName);
-    }
-    
-    public void ClearMemoryCache()
-    {
-        foreach (var texture in textureCache.Values)
-        {
-            if (texture != null)
-            {
-                Destroy(texture);
-            }
-        }
-        
         foreach (var sprite in spriteCache.Values)
         {
-            if (sprite != null)
+            if (sprite != null && sprite.texture != null)
             {
-                Destroy(sprite);
+                Destroy(sprite.texture);
             }
         }
-        
-        textureCache.Clear();
         spriteCache.Clear();
+    }
+    
+    private void OnDestroy()
+    {
+        ClearCache();
     }
 }

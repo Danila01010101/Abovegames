@@ -246,39 +246,29 @@ public class ContentGenerator : MonoBehaviour
         }
     }
     
-    private async void LoadCardImage(ImageCard card)
+    private void LoadCardImage(ImageCard card)
     {
-        if (card == null || card.HasImage) return;
+        if (card == null || card.HasImage || currentLoadCount >= MaxSimultaneousLoads)
+            return;
+        
+        int cardIndex = spawnedCards.IndexOf(card);
+        if (cardIndex < 0 || cardIndex >= filteredCardNames.Count)
+            return;
+        
+        string cardName = filteredCardNames[cardIndex];
+        if (string.IsNullOrEmpty(cardName))
+            return;
         
         currentLoadCount++;
         
-        try
+        imageLoader.LoadImage(cardName, (sprite) =>
         {
-            // Здесь card должен иметь имя карточки, которое используется для загрузки
-            // Предполагаем, что ImageCard имеет свойство CardName
-            string cardName = GetCardNameForImageCard(card);
-            
-            if (string.IsNullOrEmpty(cardName))
-            {
-                Debug.LogWarning($"Card has no name: {card}");
-                return;
-            }
-            
-            Sprite sprite = await imageLoader.LoadImageAsync(cardName);
-            
-            if (sprite != null && card != null)
+            if (card != null)
             {
                 card.SetImage(sprite);
             }
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Error loading image for card {card}: {e.Message}");
-        }
-        finally
-        {
             currentLoadCount--;
-        }
+        });
     }
     
     private void HandleCardImageRequest(ImageCard card)
@@ -301,21 +291,44 @@ public class ContentGenerator : MonoBehaviour
     
     private int[] GetVisibleCardRange()
     {
-        if (spawnedCards.Count == 0) return new int[] { 0, 0 };
-        
-        float containerHeight = containerRect.rect.height;
-        float scrollPosition = scrollMonitor.GetVisibleStartPosition();
+        if (spawnedCards.Count == 0 || columns == 0) 
+            return new int[] { 0, 0 };
+    
+        // Получаем параметры скролла
         float viewportHeight = scrollMonitor.GetViewportHeight();
-        
-        float visibleStart = scrollPosition * (containerHeight - viewportHeight);
+        float contentHeight = containerRect.rect.height;
+        float scrollPosition = 1f - scrollMonitor.ScrollRect.verticalNormalizedPosition; // Получаем из ScrollRect
+    
+        // Рассчитываем видимую область
+        float visibleStart = scrollPosition * (contentHeight - viewportHeight);
         float visibleEnd = visibleStart + viewportHeight;
-        
-        int startRow = Mathf.FloorToInt((visibleStart - edgePadding) / (cardSize.y + spacing));
-        int endRow = Mathf.CeilToInt((visibleEnd - edgePadding) / (cardSize.y + spacing));
-        
-        int startIndex = Mathf.Max(0, (startRow - PreloadMargin) * columns);
-        int endIndex = Mathf.Min(spawnedCards.Count - 1, (endRow + PreloadMargin) * columns);
-        
+    
+        // Отнимаем верхний отступ (edgePadding) - это важно!
+        visibleStart += edgePadding;
+        visibleEnd += edgePadding;
+    
+        // Рассчитываем строки
+        float rowHeight = cardSize.y + spacing;
+        int startRow = Mathf.FloorToInt(visibleStart / rowHeight);
+        int endRow = Mathf.CeilToInt(visibleEnd / rowHeight);
+    
+        // Добавляем запас для предзагрузки
+        startRow = Mathf.Max(0, startRow - PreloadMargin);
+        endRow = Mathf.Min(
+            Mathf.CeilToInt((float)filteredCardNames.Count / columns) - 1, 
+            endRow + PreloadMargin
+        );
+    
+        // Рассчитываем индексы карточек
+        int startIndex = Mathf.Max(0, startRow * columns);
+        int endIndex = Mathf.Min(
+            spawnedCards.Count - 1, 
+            Mathf.Min((endRow + 1) * columns - 1, spawnedCards.Count - 1)
+        );
+    
+        // Для отладки
+        Debug.Log($"Visible range: rows [{startRow}-{endRow}], cards [{startIndex}-{endIndex}], total: {spawnedCards.Count}");
+    
         return new int[] { startIndex, endIndex };
     }
     
@@ -395,7 +408,7 @@ public class ContentGenerator : MonoBehaviour
         
         if (imageLoader != null)
         {
-            imageLoader.ClearMemoryCache();
+            imageLoader.ClearCache();
         }
     }
     
