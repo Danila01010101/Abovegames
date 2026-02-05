@@ -126,12 +126,12 @@ TextureImporter:
       name: Banner 3_0
       rect:
         serializedVersion: 2
-        x: 335
+        x: 499
         y: 379
-        width: 1607
+        width: 1320
         height: 715
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
