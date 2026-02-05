@@ -538,10 +538,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 150557040}
     m_Modifications:
-    - target: {fileID: 2875870274289092893, guid: b25173b114d05624498d6151aab7d348, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5152612306972347866, guid: b25173b114d05624498d6151aab7d348, type: 3}
       propertyPath: m_Name
       value: TabBar

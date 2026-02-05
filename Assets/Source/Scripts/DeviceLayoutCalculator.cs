@@ -2,49 +2,18 @@ using UnityEngine;
 
 public class DeviceLayoutCalculator
 {
-    [SerializeField] private int phoneColumns = 2;
-    [SerializeField] private int tabletColumns = 3;
-    [SerializeField] private float spacing = 20f;
+    [SerializeField, Range(1, 6)] private int columns = 3;
+    [SerializeField, Range(0, 50)] private float spacing = 20f;
+    [SerializeField, Range(0, 100)] private float padding = 20f;
     
-    private int currentColumns;
-    private Vector2 currentCardSize;
-    private bool isInitialized = false;
-    
-    public int GetCurrentColumns()
+    public Vector2 GetSquareSize(float containerWidth)
     {
-        if (!isInitialized)
-        {
-            CalculateLayout();
-        }
-        return currentColumns;
+        float availableWidth = containerWidth - (padding * 2) - (spacing * (columns - 1));
+        float size = Mathf.Max(availableWidth / columns, 10f);
+        return new Vector2(size, size);
     }
     
-    public Vector2 GetCurrentCardSize(RectTransform container, float edgePadding)
-    {
-        if (!isInitialized)
-        {
-            CalculateLayout();
-        }
-        
-        if (container == null) return currentCardSize;
-        
-        Vector2 availableSize = container.rect.size - new Vector2(edgePadding * 2, edgePadding * 2);
-        float totalSpacing = spacing * (currentColumns - 1);
-        
-        float availableWidth = availableSize.x - totalSpacing;
-        float cellWidth = availableWidth / currentColumns;
-        float cellHeight = cellWidth * 1.5f;
-        
-        currentCardSize = new Vector2(cellWidth, cellHeight);
-        return currentCardSize;
-    }
-    
-    private void CalculateLayout()
-    {
-        float screenRatio = (float)Screen.width / Screen.height;
-        bool isTablet = screenRatio < 1.7f && Screen.dpi < 400;
-        
-        currentColumns = isTablet ? tabletColumns : phoneColumns;
-        isInitialized = true;
-    }
+    public int GetColumns() => columns;
+    public float GetSpacing() => spacing;
+    public float GetPadding() => padding;
 }

@@ -9,9 +9,9 @@ public class ContentGenerator : MonoBehaviour
     [SerializeField] private RectTransform container;
     [SerializeField] private ScrollViewMonitor scrollMonitor;
     [SerializeField] private float edgePadding = 20f;
-    [SerializeField] private DeviceLayoutCalculator layoutCalculator;
     [SerializeField] private OnlineImageLoader imageLoader;
     
+    private DeviceLayoutCalculator layoutCalculator;
     private List<string> filteredCardNames = new List<string>();
     private List<ImageCard> spawnedCards = new List<ImageCard>();
     private RectTransform containerRect;
@@ -133,8 +133,8 @@ public class ContentGenerator : MonoBehaviour
     
     private void CalculateLayout()
     {
-        columns = layoutCalculator.GetCurrentColumns();
-        cardSize = layoutCalculator.GetCurrentCardSize(container, edgePadding);
+        columns = layoutCalculator.GetColumns();
+        cardSize = layoutCalculator.GetSquareSize(container.rect.size.x);
         spacing = 20f;
         
         int rows = Mathf.CeilToInt((float)filteredCardNames.Count / columns);
