@@ -538,6 +538,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 150557040}
     m_Modifications:
+    - target: {fileID: 392444019793399758, guid: b25173b114d05624498d6151aab7d348, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5152612306972347866, guid: b25173b114d05624498d6151aab7d348, type: 3}
       propertyPath: m_Name
       value: TabBar
@@ -637,6 +641,10 @@ PrefabInstance:
     - target: {fileID: 6912129741345739682, guid: b25173b114d05624498d6151aab7d348, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8618881185294114708, guid: b25173b114d05624498d6151aab7d348, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 1.3813477
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

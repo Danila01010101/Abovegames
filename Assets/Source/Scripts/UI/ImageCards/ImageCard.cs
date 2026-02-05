@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ImageCard : MonoBehaviour
@@ -8,18 +7,27 @@ public class ImageCard : MonoBehaviour
     [SerializeField] private Image imageDisplay;
     [SerializeField] private GameObject loadingIndicator;
     [SerializeField] private Button cardButton;
+    [SerializeField] private GameObject premiumPopup;
+    [SerializeField] private Image premiumButton;
     
+    private ICardStrategy currentStrategy;
     private string cardName;
     private bool hasImage = false;
     private Action<ImageCard> onImageRequested;
     
     public string CardName => cardName;
+    public Sprite CurrentImage => imageDisplay.sprite;
     public bool HasImage => hasImage;
     
     public void Initialize(string name)
     {
         cardName = name;
         hasImage = false;
+        premiumButton.gameObject.SetActive(false);
+        cardButton.onClick.RemoveAllListeners();
+        currentStrategy = new BasicButton();
+        currentStrategy.Initialize(this);
+        cardButton.onClick.AddListener(currentStrategy.Open);
         
         ShowLoadingState(true);
         
@@ -27,12 +35,6 @@ public class ImageCard : MonoBehaviour
         {
             imageDisplay.sprite = null;
             imageDisplay.enabled = false;
-        }
-        
-        if (cardButton != null)
-        {
-            cardButton.onClick.RemoveAllListeners();
-            cardButton.onClick.AddListener(RequestImage);
         }
     }
     
@@ -107,14 +109,17 @@ public class ImageCard : MonoBehaviour
         }
     }
     
-    private void OnBecameInvisible()
-    {
-        // Опционально: можно очищать изображение при скрытии
-        // ClearImage();
-    }
-    
     private void OnDisable()
     {
         ClearImage();
+    }
+
+    public void Activate()
+    {
+        cardButton.onClick.RemoveAllListeners();
+        currentStrategy = new PremiumButton();
+        currentStrategy.Initialize(this);
+        cardButton.onClick.AddListener(currentStrategy.Open);
+        premiumButton.gameObject.SetActive(true);
     }
 }

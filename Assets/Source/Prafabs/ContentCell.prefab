@@ -247,7 +247,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 179.07683, y: 182.2185}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 458.1536, y: 464.4369}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2924527813692150000
@@ -265,6 +265,7 @@ MonoBehaviour:
   imageDisplay: {fileID: 6351442192103831537}
   loadingIndicator: {fileID: 4310420996279451475}
   cardButton: {fileID: 7095086085133627719}
+  cardWindow: {fileID: 0}
   premiumButton: {fileID: 4231099812016205377}
 --- !u!1 &4310420996279451475
 GameObject:

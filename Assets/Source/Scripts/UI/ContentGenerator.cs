@@ -25,13 +25,10 @@ public class ContentGenerator : MonoBehaviour
     private const int MaxSimultaneousLoads = 3;
     private int currentLoadCount = 0;
     
-    // Ссылка на imageLoader для удобства доступа
-    
     private void Awake()
     {
         containerRect = container;
         
-        // Получаем ссылки на компоненты
         if (layoutCalculator == null)
             layoutCalculator = new DeviceLayoutCalculator();
         
@@ -40,10 +37,14 @@ public class ContentGenerator : MonoBehaviour
             cardPool.OnCardImageRequested += HandleCardImageRequest;
         }
         
-        // Ищем или получаем OnlineImageLoader
-        if (imageLoader == null && Camera.main != null)
+        if (imageLoader == null)
         {
-            imageLoader = Camera.main.gameObject.AddComponent<OnlineImageLoader>();
+            imageLoader = FindObjectOfType<OnlineImageLoader>();
+            if (imageLoader == null)
+            {
+                GameObject loaderObj = new GameObject("OnlineImageLoader");
+                imageLoader = loaderObj.AddComponent<OnlineImageLoader>();
+            }
         }
         
         InitializeContent();
@@ -93,6 +94,7 @@ public class ContentGenerator : MonoBehaviour
         currentFilter = filterType;
         ApplyFilter(filterType);
         
+        
         if (filteredCardNames.Count == 0) 
         {
             Debug.LogWarning($"No cards after applying {filterType} filter.");
@@ -101,6 +103,10 @@ public class ContentGenerator : MonoBehaviour
         
         CalculateLayout();
         CreateCardStructure();
+        
+        ScrollToTop();
+        
+        ProcessVisibleCards();
         LoadInitialImages();
     }
     
@@ -108,7 +114,6 @@ public class ContentGenerator : MonoBehaviour
     {
         currentFilter = filterType;
         
-        // Используем фильтры для создания отфильтрованного списка имен
         IContentFilter<string> filter = CreateFilter(filterType);
         filteredCardNames = filter.Filter(cardData.cardNames);
         
@@ -128,21 +133,14 @@ public class ContentGenerator : MonoBehaviour
     
     private void CalculateLayout()
     {
-        // Используем DeviceLayoutCalculator для определения параметров
         columns = layoutCalculator.GetCurrentColumns();
         cardSize = layoutCalculator.GetCurrentCardSize(container, edgePadding);
+        spacing = 20f;
         
-        // Получаем spacing (если он есть в layoutCalculator, иначе используем значение по умолчанию)
-        spacing = 20f; // Можно вынести в поле или получать из layoutCalculator
-        
-        // Рассчитываем высоту контейнера на основе количества карточек
         int rows = Mathf.CeilToInt((float)filteredCardNames.Count / columns);
         float containerHeight = rows * (cardSize.y + spacing) + edgePadding * 2;
         
-        // Устанавливаем размер контейнера
         containerRect.sizeDelta = new Vector2(containerRect.sizeDelta.x, containerHeight);
-        
-        Debug.Log($"Layout calculated: {columns} columns, {rows} rows, card size: {cardSize}");
     }
     
     private void CreateCardStructure()
@@ -154,8 +152,6 @@ public class ContentGenerator : MonoBehaviour
         {
             CreateCard(i);
         }
-        
-        Debug.Log($"Created {spawnedCards.Count} cards");
     }
     
     private void CreateCard(int index)
@@ -167,15 +163,15 @@ public class ContentGenerator : MonoBehaviour
             card.transform.SetParent(container);
             card.transform.localScale = Vector3.one;
             
-            // Получаем имя карточки из отфильтрованного списка
             string cardName = filteredCardNames[index];
-            
-            // Инициализируем карточку с именем
-            // Предполагаем, что ImageCard может работать с именами
-            // Если нет, нужно изменить ImageCard.Initialize
             card.Initialize(cardName);
             card.SetSize(cardSize);
             card.SetPosition(CalculateCardPosition(index));
+
+            if ((index + 1) % 4 == 0)
+            {
+                card.Activate();
+            }
             
             spawnedCards.Add(card);
         }
@@ -210,8 +206,6 @@ public class ContentGenerator : MonoBehaviour
                 ImageCard tempCard = cardPool.GetCard();
                 cardPool.ReturnCard(tempCard);
             }
-            
-            Debug.Log($"Added {cardsToAdd} cards to pool. Total: {currentTotal + cardsToAdd}");
         }
     }
     
@@ -227,37 +221,59 @@ public class ContentGenerator : MonoBehaviour
     private void ProcessVisibleCards()
     {
         int[] visibleRange = GetVisibleCardRange();
-        
-        // Сначала выгружаем далекие карточки
+    
         UnloadDistantCards(visibleRange[0], visibleRange[1]);
-        
-        // Затем загружаем видимые
+    
         for (int i = visibleRange[0]; i <= visibleRange[1]; i++)
         {
             if (i >= 0 && i < spawnedCards.Count)
             {
                 ImageCard card = spawnedCards[i];
-                
-                if (!card.HasImage && currentLoadCount < MaxSimultaneousLoads)
+            
+                if (!card.HasImage)
                 {
-                    LoadCardImage(card);
+                    StartCoroutine(QueueCardImageLoad(card));
                 }
+            }
+        }
+    }
+
+    private System.Collections.IEnumerator QueueCardImageLoad(ImageCard card)
+    {
+        while (currentLoadCount >= MaxSimultaneousLoads)
+        {
+            yield return null;
+        }
+    
+        LoadCardImage(card);
+    }
+    
+    private void LoadCardsInBatches(List<int> cardIndices)
+    {
+        int loadedCount = 0;
+        
+        foreach (int index in cardIndices)
+        {
+            if (loadedCount >= MaxSimultaneousLoads) break;
+            
+            ImageCard card = spawnedCards[index];
+            if (card != null && !card.HasImage)
+            {
+                LoadCardImage(card);
+                loadedCount++;
             }
         }
     }
     
     private void LoadCardImage(ImageCard card)
     {
-        if (card == null || card.HasImage || currentLoadCount >= MaxSimultaneousLoads)
-            return;
+        if (card == null || card.HasImage) return;
         
         int cardIndex = spawnedCards.IndexOf(card);
-        if (cardIndex < 0 || cardIndex >= filteredCardNames.Count)
-            return;
+        if (cardIndex < 0 || cardIndex >= filteredCardNames.Count) return;
         
         string cardName = filteredCardNames[cardIndex];
-        if (string.IsNullOrEmpty(cardName))
-            return;
+        if (string.IsNullOrEmpty(cardName)) return;
         
         currentLoadCount++;
         
@@ -273,62 +289,36 @@ public class ContentGenerator : MonoBehaviour
     
     private void HandleCardImageRequest(ImageCard card)
     {
-        if (!card.HasImage && currentLoadCount < MaxSimultaneousLoads)
-        {
-            LoadCardImage(card);
-        }
-    }
-    
-    private string GetCardNameForImageCard(ImageCard card)
-    {
-        int index = spawnedCards.IndexOf(card);
-        if (index >= 0 && index < filteredCardNames.Count)
-        {
-            return filteredCardNames[index];
-        }
-        return string.Empty;
+        LoadCardImage(card);
     }
     
     private int[] GetVisibleCardRange()
     {
         if (spawnedCards.Count == 0 || columns == 0) 
             return new int[] { 0, 0 };
-    
-        // Получаем параметры скролла
-        float viewportHeight = scrollMonitor.GetViewportHeight();
-        float contentHeight = containerRect.rect.height;
-        float scrollPosition = 1f - scrollMonitor.ScrollRect.verticalNormalizedPosition; // Получаем из ScrollRect
-    
-        // Рассчитываем видимую область
-        float visibleStart = scrollPosition * (contentHeight - viewportHeight);
-        float visibleEnd = visibleStart + viewportHeight;
-    
-        // Отнимаем верхний отступ (edgePadding) - это важно!
+        
+        float visibleStart = scrollMonitor.GetVisibleStartPosition();
+        float visibleEnd = scrollMonitor.GetVisibleEndPosition();
+        
         visibleStart += edgePadding;
         visibleEnd += edgePadding;
-    
-        // Рассчитываем строки
+        
         float rowHeight = cardSize.y + spacing;
         int startRow = Mathf.FloorToInt(visibleStart / rowHeight);
         int endRow = Mathf.CeilToInt(visibleEnd / rowHeight);
-    
-        // Добавляем запас для предзагрузки
+        
         startRow = Mathf.Max(0, startRow - PreloadMargin);
         endRow = Mathf.Min(
             Mathf.CeilToInt((float)filteredCardNames.Count / columns) - 1, 
             endRow + PreloadMargin
         );
-    
-        // Рассчитываем индексы карточек
+        
         int startIndex = Mathf.Max(0, startRow * columns);
         int endIndex = Mathf.Min(
             spawnedCards.Count - 1, 
             Mathf.Min((endRow + 1) * columns - 1, spawnedCards.Count - 1)
         );
-    
-        // Для отладки
-        Debug.Log($"Visible range: rows [{startRow}-{endRow}], cards [{startIndex}-{endIndex}], total: {spawnedCards.Count}");
-    
+        
         return new int[] { startIndex, endIndex };
     }
     
@@ -336,20 +326,12 @@ public class ContentGenerator : MonoBehaviour
     {
         if (spawnedCards.Count == 0) return;
         
-        int initialLoadCount = Mathf.Min(12, spawnedCards.Count);
-        
-        for (int i = 0; i < initialLoadCount; i++)
-        {
-            if (i < spawnedCards.Count && currentLoadCount < MaxSimultaneousLoads)
-            {
-                LoadCardImage(spawnedCards[i]);
-            }
-        }
+        ProcessVisibleCards();
     }
     
     private void UnloadDistantCards(int visibleStart, int visibleEnd)
     {
-        int unloadMargin = PreloadMargin * 2;
+        int unloadMargin = PreloadMargin * 3;
         
         for (int i = 0; i < spawnedCards.Count; i++)
         {
@@ -378,18 +360,22 @@ public class ContentGenerator : MonoBehaviour
         filteredCardNames.Clear();
     }
     
-    public void UpdateCardData(CardData newData)
+    private void ScrollToTop()
     {
-        if (newData != null)
+        if (scrollMonitor != null)
         {
-            cardData = newData;
-            GenerateContent(currentFilter);
+            scrollMonitor.ScrollToTop();
         }
     }
     
     public void RefreshContent()
     {
         GenerateContent(currentFilter);
+    }
+    
+    public void SetFilter(FilterType filterType)
+    {
+        GenerateContent(filterType);
     }
     
     private void OnDestroy()
@@ -411,11 +397,4 @@ public class ContentGenerator : MonoBehaviour
             imageLoader.ClearCache();
         }
     }
-    
-    // Вспомогательные методы для отладки
-    public int GetTotalCardsCount() => cardData?.cardNames?.Count ?? 0;
-    public int GetFilteredCardsCount() => filteredCardNames.Count;
-    public int GetActiveCardsCount() => spawnedCards.Count;
-    public Vector2 GetCurrentCardSize() => cardSize;
-    public int GetCurrentColumns() => columns;
 }

@@ -26,7 +26,6 @@ public class ScrollViewMonitor : MonoBehaviour
     
     private void OnScrollValueChanged(Vector2 scrollPosition)
     {
-        // В вертикальном ScrollRect Y=1 - вверху, Y=0 - внизу
         float normalizedPosition = scrollRect.vertical 
             ? 1f - scrollPosition.y 
             : scrollPosition.x;
@@ -70,7 +69,6 @@ public class ScrollViewMonitor : MonoBehaviour
         float contentHeight = content.rect.height;
         float viewportHeight = scrollRect.viewport.rect.height;
         
-        // Если контент меньше viewport, всегда показываем с начала
         if (contentHeight <= viewportHeight) 
             return 0f;
         
@@ -101,6 +99,14 @@ public class ScrollViewMonitor : MonoBehaviour
         return content != null ? content.rect.height : 0f;
     }
     
+    public void ScrollToTop()
+    {
+        if (scrollRect != null)
+        {
+            scrollRect.verticalNormalizedPosition = 1f;
+        }
+    }
+    
     private void OnDestroy()
     {
         if (scrollRect != null)
@@ -110,7 +116,6 @@ public class ScrollViewMonitor : MonoBehaviour
         scrollListeners.Clear();
     }
     
-    // Для отладки
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.D))
