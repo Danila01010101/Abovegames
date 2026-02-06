@@ -265,7 +265,7 @@ MonoBehaviour:
   imageDisplay: {fileID: 6351442192103831537}
   loadingIndicator: {fileID: 4310420996279451475}
   cardButton: {fileID: 7095086085133627719}
-  cardWindow: {fileID: 0}
+  premiumPopup: {fileID: 0}
   premiumButton: {fileID: 4231099812016205377}
 --- !u!1 &4310420996279451475
 GameObject:
@@ -299,10 +299,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5313036507579503145}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.00058746, y: 0.00023651}
-  m_SizeDelta: {x: 408.15, y: 414.44}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: -50.000008, y: -50.000008}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5633034160433743240
 CanvasRenderer:
@@ -416,7 +416,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 0.7
 --- !u!1 &6924954071893312577
 GameObject:
   m_ObjectHideFlags: 0
@@ -454,7 +454,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -50, y: -49.999992}
+  m_SizeDelta: {x: -80, y: -80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2557696529336201683
 CanvasRenderer:
@@ -573,7 +573,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -10, y: -10}
+  m_SizeDelta: {x: -30, y: -30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4757345836390186830
 CanvasRenderer:
