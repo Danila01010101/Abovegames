@@ -270,9 +270,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uIParent: {fileID: 150557039}
   prefabsToInitialize:
+  - {fileID: 5152612306972347866, guid: b25173b114d05624498d6151aab7d348, type: 3}
   - {fileID: 4679633111304753134, guid: 8fc7513d9c749874788378b1f97e1643, type: 3}
   - {fileID: 4837452882519797218, guid: cf70f767553ce8047aada0352c093d97, type: 3}
-  - {fileID: 5152612306972347866, guid: b25173b114d05624498d6151aab7d348, type: 3}
   initializeOnAwake: 1
   delayBetweenInitializations: 0.1
 --- !u!114 &494537970
