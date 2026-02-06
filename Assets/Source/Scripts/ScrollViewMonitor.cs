@@ -3,16 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ScrollViewMonitor : MonoBehaviour
+public class ScrollViewMonitor
 {
-    [SerializeField] private ScrollRect scrollRect;
-    [SerializeField] private RectTransform content;
+    private ScrollRect scrollRect;
+    private RectTransform content;
     
     private List<Action<float>> scrollListeners = new List<Action<float>>();
     
     public ScrollRect ScrollRect => scrollRect;
+
+    public void SetData(ScrollRect scrollRect, RectTransform content)
+    {
+        this.scrollRect = scrollRect;
+        this.content = content;
+    }
     
-    private void Start()
+    public void Initialize()
     {
         if (scrollRect != null)
         {

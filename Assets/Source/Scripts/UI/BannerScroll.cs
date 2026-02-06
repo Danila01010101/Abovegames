@@ -1,17 +1,17 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
-using UnityEngine.UI;
 
-public class BannerScroll : MonoBehaviour, IIndicatorSwitcher, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class BannerScroll : MonoBehaviour, IIndicatorSwitcher, IBeginDragHandler, IDragHandler, IEndDragHandler, IDisposable
 {
-    [SerializeField] private List<RectTransform> banners;
-    [SerializeField] private float switchDuration = 0.5f;
-    [SerializeField] private Ease easeType = Ease.OutCubic;
-    [SerializeField] private float autoScrollInterval = 5f;
-    [SerializeField] private float swipeThreshold = 100f;
-
+    private List<RectTransform> banners;
+    private RectTransform rectTransform;
+    private float switchDuration = 0.5f;
+    private Ease easeType = Ease.OutCubic;
+    private float autoScrollInterval = 5f;
+    private float swipeThreshold = 100f;
     private int currentBannerIndex = 0;
     private float bannerWidth;
     private Vector2 dragStartPosition;
@@ -27,11 +27,21 @@ public class BannerScroll : MonoBehaviour, IIndicatorSwitcher, IBeginDragHandler
     public int CurrentBannerIndex => currentBannerIndex;
     public int BannerCount => banners?.Count ?? 0;
 
-    private void Start()
+    public void SetData(List<RectTransform> banners, RectTransform rectTransform, float switchDuration, Ease easeType, float autoScrollInterval, float swipeThreshold)
+    {
+        this.banners = banners;
+        this.switchDuration = switchDuration;
+        this.easeType = easeType;
+        this.autoScrollInterval = autoScrollInterval;
+        this.swipeThreshold = swipeThreshold;
+        this.rectTransform = rectTransform;
+    }
+
+    public void Initialize()
     {
         if (banners == null || banners.Count == 0)
         {
-            CollectBanners();
+            throw new NullReferenceException("No banners set in TabBarInitializator.");
         }
 
         if (banners.Count == 0) return;
@@ -49,25 +59,8 @@ public class BannerScroll : MonoBehaviour, IIndicatorSwitcher, IBeginDragHandler
         StartAutoScroll();
     }
 
-    private void CollectBanners()
-    {
-        banners = new List<RectTransform>();
-        foreach (Transform child in transform)
-        {
-            var rt = child.GetComponent<RectTransform>();
-            if (rt != null) banners.Add(rt);
-        }
-    }
-
     private void SetupInput()
     {
-        if (GetComponent<Image>() == null)
-        {
-            var image = gameObject.AddComponent<Image>();
-            image.color = new Color(0, 0, 0, 0.01f);
-        }
-
-        var rectTransform = GetComponent<RectTransform>();
         if (rectTransform != null)
         {
             rectTransform.anchorMin = Vector2.zero;
@@ -77,9 +70,9 @@ public class BannerScroll : MonoBehaviour, IIndicatorSwitcher, IBeginDragHandler
         }
     }
 
-    private void Update()
+    public void Update()
     {
-        if (isDragging || isSwitching || banners.Count <= 1) return;
+        if (banners != null && (isDragging || isSwitching || banners.Count <= 1)) return;
 
         timeSinceLastScroll += Time.deltaTime;
         if (timeSinceLastScroll >= autoScrollInterval)
@@ -202,13 +195,13 @@ public class BannerScroll : MonoBehaviour, IIndicatorSwitcher, IBeginDragHandler
         }
     }
 
+    public void Dispose()
+    {
+        currentTween?.Kill();
+    }
+
     private void StartAutoScroll()
     {
         timeSinceLastScroll = 0f;
-    }
-
-    private void OnDestroy()
-    {
-        currentTween?.Kill();
     }
 }

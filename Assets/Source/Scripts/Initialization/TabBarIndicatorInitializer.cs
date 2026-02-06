@@ -1,15 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-public class IndicatorInitializer : MonoBehaviour
+public class TabBarIndicatorInitializer : MonoBehaviour
 {
-    [SerializeField] private BannerScroll bannerScroll;
+    [SerializeField] private FilterButtonController bannerScroll;
     [SerializeField] private Indicator indicator;
     [SerializeField] private RectTransform activeIndicator;
     [SerializeField] private List<RectTransform> dotPositions;
     
-    private void Awake()
+    public void Initialize()
     {
         indicator.Initialize(bannerScroll, activeIndicator, dotPositions);
     }

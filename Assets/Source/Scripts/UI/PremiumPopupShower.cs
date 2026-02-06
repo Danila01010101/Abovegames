@@ -10,7 +10,7 @@ public class PremiumPopupShower : PopupShower
 
     public static PremiumPopupShower Instance { get; private set; }
 
-    protected override void Initialize()
+    public override void Initialize()
     {
         if (Instance != null)
         {

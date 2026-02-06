@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class ContentGenerator : MonoBehaviour
 {
-    [SerializeField] private CardData cardData;
-    [SerializeField] private CardPool cardPool;
     [SerializeField] private RectTransform container;
-    [SerializeField] private ScrollViewMonitor scrollMonitor;
-    [SerializeField] private float edgePadding = 20f;
-    [SerializeField] private OnlineImageLoader imageLoader;
+    
+    private ScrollViewMonitor scrollMonitor;
+    private OnlineImageLoader imageLoader;
+    private CardPool cardPool;
+    private CardData cardData;
+    private float edgePadding = 20f;
     
     private DeviceLayoutCalculator layoutCalculator;
     private List<string> filteredCardNames = new List<string>();
@@ -24,8 +25,18 @@ public class ContentGenerator : MonoBehaviour
     private const int PreloadMargin = 5;
     private const int MaxSimultaneousLoads = 3;
     private int currentLoadCount = 0;
+
+    public void SetData(OnlineImageLoader imageLoader, CardPool cardPool, ScrollViewMonitor scrollViewMonitor,
+        CardData cardData, float edgePadding)
+    {
+        this.imageLoader = imageLoader;
+        this.cardPool = cardPool;
+        scrollMonitor = scrollViewMonitor;
+        this.cardData = cardData;
+        this.edgePadding = edgePadding;
+    }
     
-    private void Start()
+    public void Initialize()
     {
         containerRect = container;
         
@@ -39,12 +50,7 @@ public class ContentGenerator : MonoBehaviour
         
         if (imageLoader == null)
         {
-            imageLoader = FindObjectOfType<OnlineImageLoader>();
-            if (imageLoader == null)
-            {
-                GameObject loaderObj = new GameObject("OnlineImageLoader");
-                imageLoader = loaderObj.AddComponent<OnlineImageLoader>();
-            }
+            throw new NullReferenceException("No Image Loader assigned");
         }
         
         InitializeContent();

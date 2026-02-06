@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class OnlineImageLoader : MonoBehaviour
+public class OnlineImageLoader
 {
     [SerializeField] private string baseUrl = "http://data.ikppbb.com/test-task-unity-data/pics/";
     
@@ -18,7 +18,7 @@ public class OnlineImageLoader : MonoBehaviour
             return;
         }
         
-        StartCoroutine(LoadImageCoroutine(imageName, callback));
+        CoroutineStarter.Instance.StartCoroutine(LoadImageCoroutine(imageName, callback));
     }
     
     private IEnumerator LoadImageCoroutine(string imageName, Action<Sprite> callback)
@@ -68,7 +68,7 @@ public class OnlineImageLoader : MonoBehaviour
         {
             if (sprite != null && sprite.texture != null)
             {
-                Destroy(sprite.texture);
+                GameObject.Destroy(sprite.texture);
             }
         }
         spriteCache.Clear();

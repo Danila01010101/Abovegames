@@ -38,12 +38,9 @@ public class Indicator : MonoBehaviour
         this.indicatorSwitcher = indicatorSwitcher; 
         this.activeIndicator = activeIndicator;
         this.dotPositions = dotPositions;
-        this.indicatorRectTransform = activeIndicator;
-        this.initialIndicatorSize = activeIndicator.sizeDelta; // Сохраняем изначальный размер
-    }
-
-    private void Start()
-    {
+        indicatorRectTransform = activeIndicator;
+        initialIndicatorSize = activeIndicator.sizeDelta;
+        
         ValidateComponents();
         CacheDotPositions();
         

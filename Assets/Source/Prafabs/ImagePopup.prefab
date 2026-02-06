@@ -415,6 +415,7 @@ GameObject:
   m_Component:
   - component: {fileID: 47295150166729114}
   - component: {fileID: 783619169450541425}
+  - component: {fileID: 8538306786970435835}
   m_Layer: 5
   m_Name: ImagePopup
   m_TagString: Untagged
@@ -457,6 +458,19 @@ MonoBehaviour:
   popupWindow: {fileID: 6490893288774284903}
   closeButton: {fileID: 2270040549583450710}
   image: {fileID: 334704862690689477}
+--- !u!114 &8538306786970435835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4679633111304753134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fade93e0f85adde4aad40c17d3012c5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  imagePopupShower: {fileID: 783619169450541425}
 --- !u!1 &6450940957466384878
 GameObject:
   m_ObjectHideFlags: 0

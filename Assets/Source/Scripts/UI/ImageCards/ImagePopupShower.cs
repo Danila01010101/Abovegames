@@ -7,7 +7,7 @@ public class ImagePopupShower : PopupShower
 
     public static ImagePopupShower Instance { get; private set; }
 
-    protected override void Initialize()
+    public override void Initialize()
     {
         if (Instance != null)
         {

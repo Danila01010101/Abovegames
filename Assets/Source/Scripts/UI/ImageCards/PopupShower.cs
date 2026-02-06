@@ -6,12 +6,7 @@ public abstract class PopupShower : MonoBehaviour
     [SerializeField] protected GameObject popupWindow;
     [SerializeField] protected Button closeButton;
 
-    private void Awake()
-    {
-        Initialize();
-    }
-
-    protected virtual void Initialize()
+    public virtual void Initialize()
     {
         closeButton.onClick.AddListener(Hide);
     }

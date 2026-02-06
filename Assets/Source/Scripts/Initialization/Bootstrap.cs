@@ -1,12 +1,17 @@
 using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Bootstrap : MonoBehaviour
 {
-    [Header("Префабы для инициализации")]
+    [Header("Initialization parents")]
+    [SerializeField] private Canvas uIParent;
+    
+    [Header("Initializable prefabs")]
     [SerializeField] private GameObject[] prefabsToInitialize;
     
-    [Header("Порядок инициализации")]
+    [Header("Initialization order")]
     [SerializeField] private bool initializeOnAwake = true;
     [SerializeField] private float delayBetweenInitializations = 0.1f;
     
@@ -77,15 +82,52 @@ public class Bootstrap : MonoBehaviour
     
     private void InstantiateAndInitialize(GameObject prefab)
     {
-        GameObject instance = Instantiate(prefab, transform);
+        GameObject instance = Instantiate(prefab);
         instance.name = prefab.name;
-        
+    
         var initializable = instance.GetComponent<IInitializable>();
         if (initializable != null)
         {
-            initializable.Initialize();
+            if (initializable.isUIElement())
+            {
+                RectTransform rectTransform = instance.GetComponent<RectTransform>();
+                Vector2 savedSize = rectTransform != null ? rectTransform.sizeDelta : Vector2.zero;
+            
+                instance.transform.SetParent(uIParent.transform, false);
+            
+                if (rectTransform != null)
+                {
+                    StartCoroutine(DelayedSizeRestore(rectTransform, savedSize));
+                }
+            }
+            else
+            {
+                instance.transform.SetParent(transform);
+            }
+        
+            StartCoroutine(DelayedInitialize(initializable));
             Debug.Log($"Инициализирован: {prefab.name}");
         }
+    }
+
+    private IEnumerator DelayedSizeRestore(RectTransform rectTransform, Vector2 savedSize)
+    {
+        yield return null;
+    
+        LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+    
+        if (savedSize != Vector2.zero)
+        {
+            rectTransform.sizeDelta = savedSize;
+        }
+    
+        LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+    }
+
+    private IEnumerator DelayedInitialize(IInitializable initializable)
+    {
+        yield return null;
+        initializable.Initialize();
     }
     
     private void ContinueWithDelay()
@@ -129,5 +171,6 @@ public class Bootstrap : MonoBehaviour
 
 public interface IInitializable
 {
+    bool isUIElement();
     void Initialize();
 }

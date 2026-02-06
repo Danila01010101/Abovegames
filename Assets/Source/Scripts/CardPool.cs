@@ -1,30 +1,36 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class CardPool : MonoBehaviour
+public class CardPool : IDisposable
 {
-    [SerializeField] private ImageCard cardPrefab;
-    [SerializeField] private int initialPoolSize = 20;
-    [SerializeField] private bool expandPool = true;
+    private Transform cardsParent;
+    private ImageCard cardPrefab;
+    private int initialPoolSize = 20;
+    private bool expandPool = true;
     
     private Queue<ImageCard> pool = new Queue<ImageCard>();
     private List<ImageCard> activeCards = new List<ImageCard>();
-    private Transform poolParent;
     
     public Action<ImageCard> OnCardImageRequested;
+
+    public void SetData(Transform cardsParent, ImageCard cardPrefab, int initialPoolSize, bool expandPool)
+    {
+        this.cardsParent = cardsParent;
+        this.cardPrefab = cardPrefab;
+        this.initialPoolSize = initialPoolSize;
+        this.expandPool = expandPool;
+    }
     
-    private void Awake()
+    public void Initialize()
     {
         InitializePool();
     }
     
     private void InitializePool()
     {
-        poolParent = new GameObject("CardPool").transform;
-        poolParent.SetParent(transform);
-        poolParent.gameObject.SetActive(false);
+        cardsParent.SetParent(cardsParent);
+        cardsParent.gameObject.SetActive(false);
         
         for (int i = 0; i < initialPoolSize; i++)
         {
@@ -34,15 +40,10 @@ public class CardPool : MonoBehaviour
     
     private void CreatePooledCard()
     {
-        ImageCard card = Instantiate(cardPrefab, poolParent);
+        ImageCard card = GameObject.Instantiate(cardPrefab, cardsParent);
         card.gameObject.SetActive(false);
         card.SetOnImageRequestedCallback(cardInstance => OnCardImageRequested?.Invoke(cardInstance));
         pool.Enqueue(card);
-    }
-    
-    private void HandleImageRequest(ImageCard card)
-    {
-        OnCardImageRequested?.Invoke(card);
     }
     
     public ImageCard GetCard()
@@ -70,19 +71,11 @@ public class CardPool : MonoBehaviour
         if (card == null) return;
         
         card.gameObject.SetActive(false);
-        card.transform.SetParent(poolParent);
+        card.transform.SetParent(cardsParent);
         card.ClearImage();
         
         activeCards.Remove(card);
         pool.Enqueue(card);
-    }
-    
-    public void ReturnAllCards()
-    {
-        foreach (ImageCard card in activeCards.ToArray())
-        {
-            ReturnCard(card);
-        }
     }
     
     public int GetActiveCardCount()
@@ -94,14 +87,14 @@ public class CardPool : MonoBehaviour
     {
         return pool.Count;
     }
-    
-    private void OnDestroy()
+
+    public void Dispose()
     {
         foreach (ImageCard card in pool)
         {
             if (card != null)
             {
-                Destroy(card.gameObject);
+                GameObject.Destroy(card.gameObject);
             }
         }
         
@@ -109,16 +102,11 @@ public class CardPool : MonoBehaviour
         {
             if (card != null)
             {
-                Destroy(card.gameObject);
+                GameObject.Destroy(card.gameObject);
             }
         }
         
         pool.Clear();
         activeCards.Clear();
-        
-        if (poolParent != null)
-        {
-            Destroy(poolParent.gameObject);
-        }
     }
 }

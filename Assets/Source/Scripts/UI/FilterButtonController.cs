@@ -15,7 +15,7 @@ public class FilterButtonController : MonoBehaviour, IIndicatorSwitcher
     public event Action<int, int> OnBannerSwitching;
     public event Action<int> OnBannerSwitchComplete;
 
-    private void Start()
+    public void Initialize()
     {
         SetupButtonListeners();
     }
