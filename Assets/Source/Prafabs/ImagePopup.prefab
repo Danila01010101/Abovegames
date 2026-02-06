@@ -456,7 +456,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   popupWindow: {fileID: 6490893288774284903}
   closeButton: {fileID: 2270040549583450710}
-  backButton: {fileID: 2270040549583450710}
   image: {fileID: 334704862690689477}
 --- !u!1 &6450940957466384878
 GameObject:
@@ -490,10 +489,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2718636192058316345}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -1361.0308}
-  m_SizeDelta: {x: 1440, y: 1446.4307}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -0.5, y: -1360.5308}
+  m_SizeDelta: {x: -1, y: 1447.4307}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7920149344849638311
 CanvasRenderer:
