@@ -23,8 +23,7 @@ public class OnlineImageLoader : MonoBehaviour
     
     private IEnumerator LoadImageCoroutine(string imageName, Action<Sprite> callback)
     {
-        //string url = $"{baseUrl}{imageName}.jpg";
-        string url = "https://avatars.mds.yandex.net/i?id=ed288656783ca1d1e8e43a13582f1ebe4c14e535-4228239-images-thumbs&n=13";
+        string url = $"{baseUrl}{imageName}.jpg";
         
         using UnityWebRequest request = UnityWebRequestTexture.GetTexture(url);
         
