@@ -25,7 +25,7 @@ public class ContentGenerator : MonoBehaviour
     private const int MaxSimultaneousLoads = 3;
     private int currentLoadCount = 0;
     
-    private void Awake()
+    private void Start()
     {
         containerRect = container;
         

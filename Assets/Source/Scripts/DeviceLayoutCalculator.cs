@@ -8,7 +8,7 @@ public class DeviceLayoutCalculator
     
     public Vector2 GetSquareSize(float containerWidth)
     {
-        float availableWidth = containerWidth - (padding * 2) - (spacing * (columns - 1));
+        float availableWidth = containerWidth - (padding * 2);
         float size = Mathf.Max(availableWidth / columns, 10f);
         return new Vector2(size, size);
     }
