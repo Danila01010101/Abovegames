@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
@@ -16,5 +15,4 @@ public class TabBarData : ScriptableObject
     public ImageCard cardPrefab;
     public int initialPoolSize = 66;
     public bool expandPool = false;
-    
 }
