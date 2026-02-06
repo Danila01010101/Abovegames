@@ -41,6 +41,7 @@ public class TabBarInitializator : MonoBehaviour, IInitializable, IDisposable
         scrollViewMonitor.SetData(scrollRect, content);
         
         OnlineImageLoader onlineImageLoader = new OnlineImageLoader();
+        onlineImageLoader.SetUrl(tabBarData.baseUrl);
         filterButtonController.Initialize();
         
         CardPool cardPool = new CardPool();

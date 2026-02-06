@@ -21,7 +21,6 @@ public class Indicator : MonoBehaviour
     [SerializeField] private float sizeAnimationDuration = 0.3f;
     [SerializeField] private Ease sizeEase = Ease.OutBack;
     
-    // СОБЫТИЯ
     public event Action<int> OnIndicatorStartMoving;
     public event Action<int> OnIndicatorReachedTarget;
     public event Action<int, int> OnIndicatorMoving;
@@ -155,7 +154,6 @@ public class Indicator : MonoBehaviour
         
         if (fromDotIndex != toDotIndex)
         {
-            // СОБЫТИЕ: Начало движения
             OnIndicatorStartMoving?.Invoke(toDotIndex);
             OnIndicatorMoving?.Invoke(fromDotIndex, toDotIndex);
             

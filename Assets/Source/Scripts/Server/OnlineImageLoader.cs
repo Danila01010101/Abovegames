@@ -6,9 +6,11 @@ using UnityEngine.Networking;
 
 public class OnlineImageLoader
 {
-    [SerializeField] private string baseUrl = "http://data.ikppbb.com/test-task-unity-data/pics/";
+    private string baseUrl = "http://data.ikppbb.com/test-task-unity-data/pics/";
     
     private Dictionary<string, Sprite> spriteCache = new Dictionary<string, Sprite>();
+    
+    public void SetUrl(string url) => baseUrl = url;
     
     public void LoadImage(string imageName, Action<Sprite> callback)
     {

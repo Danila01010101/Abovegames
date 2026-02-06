@@ -6,6 +6,8 @@ public class TabBarData : ScriptableObject
 {
     public CardData cardData;
     public float edgePadding;
+    [Header ("Url")]
+    public string baseUrl = "http://data.ikppbb.com/test-task-unity-data/pics/";
     [Header ("BannerScroll")]
     public float switchDuration = 0.5f;
     public Ease easeType = Ease.OutCubic;
