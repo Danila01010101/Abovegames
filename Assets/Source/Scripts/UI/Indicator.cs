@@ -10,11 +10,11 @@ public class Indicator : MonoBehaviour
     
     [Header("Position Settings")]
     [SerializeField] private bool useAnchoredPosition = true;
-    [SerializeField] private Vector2 positionOffset = Vector2.zero; // Offset позиции
+    [SerializeField] private Vector2 positionOffset = Vector2.zero;
     
     [Header("Size Settings")]
-    [SerializeField] private bool matchTargetWidth = false; // Будет ли индикатор принимать ширину точки
-    [SerializeField] private bool matchTargetHeight = false; // Будет ли индикатор принимать высоту точки
+    [SerializeField] private bool matchTargetWidth = false;
+    [SerializeField] private bool matchTargetHeight = false;
     
     [Header("Size Animation")]
     [SerializeField] private float sizeAnimationDuration = 0.3f;
@@ -22,7 +22,7 @@ public class Indicator : MonoBehaviour
     
     private Vector2[] dotAnchoredPositions;
     private Vector2[] dotLocalPositions;
-    private Vector2[] dotSizes; // Добавляем массив размеров точек
+    private Vector2[] dotSizes;
     private int lastBannerIndex = -1;
     private Tween currentTween;
     private Tween sizeTween;
@@ -31,7 +31,7 @@ public class Indicator : MonoBehaviour
     private RectTransform activeIndicator;
     private List<RectTransform> dotPositions;
     private RectTransform indicatorRectTransform;
-    private Vector2 initialIndicatorSize; // Изначальный размер индикатора
+    private Vector2 initialIndicatorSize;
 
     public void Initialize(IIndicatorSwitcher indicatorSwitcher, RectTransform activeIndicator, List<RectTransform> dotPositions)
     {
@@ -84,7 +84,7 @@ public class Indicator : MonoBehaviour
         
         dotAnchoredPositions = new Vector2[dotPositions.Count];
         dotLocalPositions = new Vector2[dotPositions.Count];
-        dotSizes = new Vector2[dotPositions.Count]; // Инициализируем массив размеров
+        dotSizes = new Vector2[dotPositions.Count];
         
         for (int i = 0; i < dotPositions.Count; i++)
         {
@@ -92,7 +92,7 @@ public class Indicator : MonoBehaviour
             {
                 dotAnchoredPositions[i] = dotPositions[i].anchoredPosition + positionOffset;
                 dotLocalPositions[i] = dotPositions[i].localPosition + (Vector3)positionOffset;
-                dotSizes[i] = GetWorldRect(dotPositions[i]).size; // Сохраняем размер точки
+                dotSizes[i] = GetWorldRect(dotPositions[i]).size;
             }
         }
     }
@@ -172,15 +172,13 @@ public class Indicator : MonoBehaviour
                     .OnComplete(() => OnSizeAnimationComplete(toDotIndex));
             }
             
-            // Анимация размера, если нужно
             if (matchTargetWidth || matchTargetHeight)
             {
                 sizeTween = indicatorRectTransform.DOSizeDelta(targetSize, sizeAnimationDuration)
                     .SetEase(sizeEase)
-                    .SetDelay(0.1f); // Небольшая задержка перед анимацией размера
+                    .SetDelay(0.1f);
             }
             
-            // Анимация поворота и масштаба
             if (dotPositions[toDotIndex] != null)
             {
                 activeIndicator.DORotateQuaternion(dotPositions[toDotIndex].rotation, moveDuration);
@@ -191,7 +189,6 @@ public class Indicator : MonoBehaviour
     
     private void OnSizeAnimationComplete(int dotIndex)
     {
-        // Гарантируем точный размер после анимации
         if (matchTargetWidth || matchTargetHeight)
         {
             indicatorRectTransform.sizeDelta = GetTargetSize(dotIndex);
@@ -209,7 +206,6 @@ public class Indicator : MonoBehaviour
         
         if (dotPositions[dotIndex] != null)
         {
-            // Устанавливаем позицию с учетом offset
             if (useAnchoredPosition)
             {
                 indicatorRectTransform.anchoredPosition = GetTargetPosition(dotIndex);
@@ -219,7 +215,6 @@ public class Indicator : MonoBehaviour
                 activeIndicator.localPosition = GetTargetPosition(dotIndex);
             }
             
-            // Устанавливаем размер, если нужно
             if (matchTargetWidth || matchTargetHeight)
             {
                 indicatorRectTransform.sizeDelta = GetTargetSize(dotIndex);
@@ -247,7 +242,6 @@ public class Indicator : MonoBehaviour
         
         if (dotPositions[dotIndex] != null)
         {
-            // Позиция
             if (useAnchoredPosition)
             {
                 indicatorRectTransform.anchoredPosition = GetTargetPosition(dotIndex);
@@ -257,7 +251,6 @@ public class Indicator : MonoBehaviour
                 activeIndicator.localPosition = GetTargetPosition(dotIndex);
             }
             
-            // Размер
             if (matchTargetWidth || matchTargetHeight)
             {
                 indicatorRectTransform.sizeDelta = GetTargetSize(dotIndex);
@@ -270,10 +263,8 @@ public class Indicator : MonoBehaviour
         lastBannerIndex = bannerIndex;
     }
 
-    // Добавим метод для обновления позиций при изменении размера экрана
     private void Update()
     {
-        // Проверяем изменение размера экрана
         if (Screen.width != lastScreenWidth || Screen.height != lastScreenHeight)
         {
             RefreshPositions();
@@ -294,47 +285,6 @@ public class Indicator : MonoBehaviour
             MoveIndicatorImmediately(lastBannerIndex);
         }
     }
-    
-    // Метод для обновления offset в runtime
-    public void SetPositionOffset(Vector2 newOffset)
-    {
-        positionOffset = newOffset;
-        CacheDotPositions();
-        
-        if (lastBannerIndex >= 0)
-        {
-            MoveIndicatorImmediately(lastBannerIndex);
-        }
-    }
-    
-    // Метод для включения/выключения match size в runtime
-    public void SetMatchSize(bool matchWidth, bool matchHeight)
-    {
-        matchTargetWidth = matchWidth;
-        matchTargetHeight = matchHeight;
-        
-        if (lastBannerIndex >= 0 && lastBannerIndex < dotPositions.Count)
-        {
-            // Немедленно применяем изменения размера
-            if (matchTargetWidth || matchTargetHeight)
-            {
-                indicatorRectTransform.sizeDelta = GetTargetSize(lastBannerIndex);
-            }
-            else
-            {
-                indicatorRectTransform.sizeDelta = initialIndicatorSize;
-            }
-        }
-    }
-    
-    // Метод для получения текущих настроек размера
-    public Vector2 GetCurrentSizeSettings()
-    {
-        return new Vector2(
-            matchTargetWidth ? 1 : 0,
-            matchTargetHeight ? 1 : 0
-        );
-    }
 
     private void OnDestroy()
     {
@@ -347,31 +297,4 @@ public class Indicator : MonoBehaviour
         currentTween?.Kill();
         sizeTween?.Kill();
     }
-    
-    #if UNITY_EDITOR
-    // Визуализация offset в Editor
-    private void OnDrawGizmosSelected()
-    {
-        if (dotPositions == null || dotPositions.Count == 0) return;
-        
-        foreach (var dot in dotPositions)
-        {
-            if (dot != null)
-            {
-                // Показываем позицию с offset
-                Vector3 originalPos = dot.position;
-                Vector3 offsetPos = originalPos + (Vector3)positionOffset;
-                
-                Gizmos.color = Color.green;
-                Gizmos.DrawWireSphere(originalPos, 5f);
-                
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawWireSphere(offsetPos, 3f);
-                
-                Gizmos.color = Color.red;
-                Gizmos.DrawLine(originalPos, offsetPos);
-            }
-        }
-    }
-    #endif
 }
