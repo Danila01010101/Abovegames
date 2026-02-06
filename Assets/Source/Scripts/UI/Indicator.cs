@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
 
@@ -19,6 +20,11 @@ public class Indicator : MonoBehaviour
     [Header("Size Animation")]
     [SerializeField] private float sizeAnimationDuration = 0.3f;
     [SerializeField] private Ease sizeEase = Ease.OutBack;
+    
+    // СОБЫТИЯ
+    public event Action<int> OnIndicatorStartMoving;
+    public event Action<int> OnIndicatorReachedTarget;
+    public event Action<int, int> OnIndicatorMoving;
     
     private Vector2[] dotAnchoredPositions;
     private Vector2[] dotLocalPositions;
@@ -149,6 +155,10 @@ public class Indicator : MonoBehaviour
         
         if (fromDotIndex != toDotIndex)
         {
+            // СОБЫТИЕ: Начало движения
+            OnIndicatorStartMoving?.Invoke(toDotIndex);
+            OnIndicatorMoving?.Invoke(fromDotIndex, toDotIndex);
+            
             currentTween?.Kill();
             sizeTween?.Kill();
             isAnimating = true;
@@ -160,13 +170,17 @@ public class Indicator : MonoBehaviour
             {
                 currentTween = indicatorRectTransform.DOAnchorPos(targetPosition, moveDuration)
                     .SetEase(moveEase)
-                    .OnComplete(() => OnSizeAnimationComplete(toDotIndex));
+                    .OnStart(() => OnTweenStart(toDotIndex))
+                    .OnUpdate(() => OnTweenUpdate(fromDotIndex, toDotIndex))
+                    .OnComplete(() => OnTweenComplete(toDotIndex));
             }
             else
             {
                 currentTween = indicatorRectTransform.DOLocalMove(targetPosition, moveDuration)
                     .SetEase(moveEase)
-                    .OnComplete(() => OnSizeAnimationComplete(toDotIndex));
+                    .OnStart(() => OnTweenStart(toDotIndex))
+                    .OnUpdate(() => OnTweenUpdate(fromDotIndex, toDotIndex))
+                    .OnComplete(() => OnTweenComplete(toDotIndex));
             }
             
             if (matchTargetWidth || matchTargetHeight)
@@ -182,6 +196,22 @@ public class Indicator : MonoBehaviour
                 activeIndicator.DOScale(dotPositions[toDotIndex].localScale, moveDuration);
             }
         }
+    }
+    
+    private void OnTweenStart(int targetIndex)
+    {
+        Debug.Log($"Indicator started moving to index: {targetIndex}");
+    }
+    
+    private void OnTweenUpdate(int fromIndex, int toIndex)
+    {
+        OnIndicatorMoving?.Invoke(fromIndex, toIndex);
+    }
+    
+    private void OnTweenComplete(int targetIndex)
+    {
+        OnIndicatorReachedTarget?.Invoke(targetIndex);
+        OnSizeAnimationComplete(targetIndex);
     }
     
     private void OnSizeAnimationComplete(int dotIndex)
@@ -258,6 +288,8 @@ public class Indicator : MonoBehaviour
         }
         
         lastBannerIndex = bannerIndex;
+        
+        OnIndicatorReachedTarget?.Invoke(dotIndex);
     }
 
     private void Update()
